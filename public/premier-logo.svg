@@ -1,0 +1,7 @@
+<svg width="220" height="56" viewBox="0 0 220 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="56" height="56" rx="28" fill="#F2E7E6"/>
+  <path d="M20 16H30.5C35.4 16 38.5 19.1 38.5 23.7C38.5 28.3 35.4 31.5 30.5 31.5H24.4V40H20V16ZM30.1 27.8C32.7 27.8 34.1 26.4 34.1 23.8C34.1 21.2 32.7 19.8 30.1 19.8H24.4V27.8H30.1Z" fill="#B99658"/>
+  <path d="M47 40V16H51.4L62.7 32.2V16H67V40H62.8L51.3 23.5V40H47Z" fill="#B99658"/>
+  <text x="76" y="25" fill="#3F3343" font-family="'Playfair Display', serif" font-size="24" letter-spacing="1">Premier</text>
+  <text x="76" y="43" fill="#7A677F" font-family="Inter, sans-serif" font-size="12" letter-spacing="3">DOULA</text>
+</svg>
