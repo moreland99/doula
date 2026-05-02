@@ -4,18 +4,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: '#F8F6F2',
-        sand: '#F3EEE8',
-        beige: '#E8DED2',
-        blush: '#E8DAD6',
-        charcoal: '#2B2B2B',
-        taupe: '#6B5E55',
-        gold: '#C9A646',
-        goldDeep: '#B8922E',
+        cream: '#F8F4EF',
+        ivory: '#F2ECE4',
+        sand: '#EEE4D8',
+        beige: '#E4D8C8',
+        blush: '#F1E6E1',
+        charcoal: '#2F2A26',
+        taupe: '#A99786',
+        gold: '#C9AB6C',
+        champagne: '#DDC9A0',
+        goldDeep: '#B89558',
+        sage: '#74877C',
       },
       fontFamily: {
-        heading: ['"Cormorant Garamond"', 'serif'],
-        body: ['Manrope', 'sans-serif'],
+        heading: ['"sweet-gothic-serif"', '"Cormorant Garamond"', 'serif'],
+        body: ['"source-sans-pro"', 'Manrope', 'sans-serif'],
       },
       boxShadow: {
         soft: '0 18px 40px -24px rgba(54, 41, 31, 0.25)',

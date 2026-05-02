@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   Activity,
@@ -11,8 +11,8 @@ import {
   Sparkles,
 } from 'lucide-react'
 import doulaLogo from './assets/doula.svg'
-import momNewbornImage from './assets/momnewborn.png'
 import { services } from './data/services'
+import { submitForm } from './lib/submitForm'
 
 const servicePageContent = {
   'postpartum-care': {
@@ -51,67 +51,67 @@ const servicePageContent = {
       },
     ],
   },
-  'concierge-care': {
-    whyTitle: 'Why families choose concierge care',
+  'infant-care': {
+    whyTitle: 'Why families choose infant support',
     whyCards: [
-      'Flexible support around your exact schedule',
-      'High-touch coordination for daily life and recovery',
-      'Premium continuity from one trusted team',
+      'Steadier newborn routines with expert guidance',
+      'Hands-on support that lowers first-month overwhelm',
+      'Confidence-building care tailored to your baby',
     ],
-    definitionTitle: 'What is concierge care?',
+    definitionTitle: 'What is infant care?',
     definitionLeft:
-      'Concierge care is personalized, lifestyle-integrated support designed for women who want dependable help beyond standard visit blocks. It is responsive, discreet, and tailored to evolving priorities.',
+      'Infant care provides one-on-one in-home support focused on your baby\'s day-to-day needs during the earliest months. It combines practical care with coaching so families can build routines that feel sustainable and calm.',
     definitionRight:
-      'From home organization to recovery-focused routines, concierge care helps reduce mental load while preserving comfort and control. You receive practical support with a boutique level of service.',
-    supportTitle: 'What concierge care includes',
+      'Support can include soothing guidance, sleep rhythm planning, feeding flow help, and confidence-building infant handling techniques. The goal is to reduce uncertainty and help your family feel supported every day.',
+    supportTitle: 'What infant support includes',
     supportColumns: [
       {
-        title: 'Lifestyle Support',
-        bullets: ['Errands and coordination', 'Household flow assistance', 'Schedule-aligned support'],
+        title: 'Daily Infant Care',
+        bullets: ['Soothing and calming techniques', 'Sleep rhythm guidance', 'Hands-on newborn support'],
       },
       {
-        title: 'Care Coordination',
+        title: 'Routine Building',
         bullets: [
-          'Consistent communication',
-          'Priority-based care planning',
-          'Adjustments as needs evolve',
+          'Feeding and nap flow planning',
+          'Care structure that fits your home',
+          'Adjustments as your baby grows',
         ],
       },
       {
-        title: 'Peace of Mind',
-        bullets: ['Trusted ongoing partnership', 'Reduced daily pressure', 'Premium personalized service'],
+        title: 'Family Confidence',
+        bullets: ['Real-time expert reassurance', 'Lower stress during transitions', 'Supportive in-home coaching'],
       },
     ],
   },
-  'post-operative-care': {
-    whyTitle: 'Why families choose post-operative care',
+  'lactation-support': {
+    whyTitle: 'Why families choose lactation support',
     whyCards: [
-      'Safer recovery with attentive home support',
-      'Comfort and mobility assistance when you need it',
-      'Reduced stress during a sensitive healing window',
+      'Feeding support tailored to your goals and comfort',
+      'Practical help that improves consistency and confidence',
+      'Compassionate guidance without pressure or judgment',
     ],
-    definitionTitle: 'What is post-operative care?',
+    definitionTitle: 'What is lactation support?',
     definitionLeft:
-      'Post-operative care provides dedicated in-home support after procedures so recovery can happen with less strain and more consistency. It focuses on comfort, pacing, and practical assistance.',
+      'Lactation support offers hands-on feeding guidance to help mothers and babies find a rhythm that works. It includes practical adjustments for latch, positioning, pumping, and comfort based on your unique goals.',
     definitionRight:
-      'We tailor support around your provider recommendations and personal preferences, helping you regain confidence at home while protecting rest, mobility, and healing progress.',
-    supportTitle: 'What post-op support includes',
+      'Whether you are establishing breastfeeding, combination feeding, or pumping routines, support is tailored to your stage. The focus is reducing stress, improving comfort, and making feeding more manageable at home.',
+    supportTitle: 'What lactation support includes',
     supportColumns: [
       {
-        title: 'Recovery Monitoring',
-        bullets: ['Structured comfort check-ins', 'Routine consistency support', 'Attention to recovery goals'],
+        title: 'Feeding Techniques',
+        bullets: ['Latch and positioning support', 'Pacing and transfer guidance', 'Comfort-focused adjustments'],
       },
       {
-        title: 'Mobility & Comfort',
+        title: 'Plan Personalization',
         bullets: [
-          'Safe movement assistance',
-          'Comfort-first environment setup',
-          'Energy-conscious daily support',
+          'Support for nursing and pumping',
+          'Flexible routines for your schedule',
+          'Strategies aligned to your goals',
         ],
       },
       {
-        title: 'Personalized Care',
-        bullets: ['Care adapted to your pace', 'Trusted communication', 'Calmer healing at home'],
+        title: 'Ongoing Guidance',
+        bullets: ['Progress check-ins and refinements', 'Support through transitions', 'Steadier feeding confidence'],
       },
     ],
   },
@@ -119,8 +119,8 @@ const servicePageContent = {
 
 const whyCardIconSets = {
   'postpartum-care': ['moon', 'lightbulb', 'heart'],
-  'concierge-care': ['clock', 'clipboard', 'shield'],
-  'post-operative-care': ['shield', 'activity', 'sparkle'],
+  'infant-care': ['clock', 'clipboard', 'shield'],
+  'lactation-support': ['shield', 'activity', 'sparkle'],
 }
 
 const iconMap = {
@@ -144,59 +144,31 @@ function ServicePage() {
   const service = services.find((item) => item.id === serviceId)
   const pageContent = servicePageContent[serviceId]
   const whyIconSet = whyCardIconSets[serviceId] ?? ['sparkle', 'sparkle', 'sparkle']
-  const serviceHeroImage = serviceId === 'postpartum-care' ? momNewbornImage : service?.image
+  const serviceHeroImage = service?.image
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [showFloatingHeader, setShowFloatingHeader] = useState(false)
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
-  const [bookingStep, setBookingStep] = useState('calendar')
-  const [schedulerMonth, setSchedulerMonth] = useState(new Date())
-  const [selectedDate, setSelectedDate] = useState(null)
-  const [selectedTime, setSelectedTime] = useState('')
-  const [selectedTimezone, setSelectedTimezone] = useState(
-    Intl.DateTimeFormat().resolvedOptions().timeZone,
-  )
+  const [bookingSubmitted, setBookingSubmitted] = useState(false)
+  const [bookingSubmitting, setBookingSubmitting] = useState(false)
+  const [bookingError, setBookingError] = useState(null)
+  const [bookingHoneypot, setBookingHoneypot] = useState('')
   const [bookingForm, setBookingForm] = useState({
     fullName: '',
     email: '',
     phone: '',
+    preferredContact: '',
     notes: '',
   })
 
-  const timezones = [
-    'America/New_York',
-    'America/Chicago',
-    'America/Denver',
-    'America/Los_Angeles',
-    'America/Toronto',
-    'UTC',
-  ]
-
-  const availableTimes = ['9:00 AM', '10:30 AM', '12:00 PM', '2:00 PM', '3:30 PM', '5:00 PM']
-
-  const monthLabel = schedulerMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' })
-
-  const calendarDays = useMemo(() => {
-    const year = schedulerMonth.getFullYear()
-    const month = schedulerMonth.getMonth()
-    const firstDayIndex = new Date(year, month, 1).getDay()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-
-    const slots = Array.from({ length: firstDayIndex }, () => null)
-    for (let day = 1; day <= daysInMonth; day += 1) {
-      slots.push(new Date(year, month, day))
-    }
-    return slots
-  }, [schedulerMonth])
-
   const openBookingModal = () => {
-    setBookingStep('calendar')
-    setSelectedDate(null)
-    setSelectedTime('')
+    setBookingSubmitted(false)
+    setBookingError(null)
+    setBookingHoneypot('')
     setBookingForm({
       fullName: '',
       email: '',
       phone: '',
+      preferredContact: '',
       notes: '',
     })
     setIsBookingModalOpen(true)
@@ -206,59 +178,29 @@ function ServicePage() {
     setIsBookingModalOpen(false)
   }
 
-  const showPreviousMonth = () => {
-    setSchedulerMonth((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))
-  }
-
-  const showNextMonth = () => {
-    setSchedulerMonth((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))
-  }
-
-  const canContinueToDetails = Boolean(selectedDate && selectedTime)
-
-  const selectedDateLabel = selectedDate
-    ? selectedDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      })
-    : ''
-
-  const timezoneLabel = selectedTimezone.replace('_', ' ')
-
-  const isDateSelected = (dateValue) =>
-    selectedDate &&
-    selectedDate.getFullYear() === dateValue.getFullYear() &&
-    selectedDate.getMonth() === dateValue.getMonth() &&
-    selectedDate.getDate() === dateValue.getDate()
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    setBookingStep('confirmed')
+    setBookingError(null)
+    setBookingSubmitting(true)
+    try {
+      await submitForm({
+        formType: 'consultation',
+        honeypot: bookingHoneypot,
+        fullName: bookingForm.fullName,
+        email: bookingForm.email,
+        phone: bookingForm.phone,
+        service: service.name,
+        preferredContact: bookingForm.preferredContact,
+        notes: bookingForm.notes,
+      })
+      setBookingSubmitted(true)
+      setBookingHoneypot('')
+    } catch (error) {
+      setBookingError(error instanceof Error ? error.message : 'Something went wrong. Please try again.')
+    } finally {
+      setBookingSubmitting(false)
+    }
   }
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const threshold = Math.min(window.innerHeight * 0.2, 120)
-      setShowFloatingHeader(window.scrollY > threshold)
-    }
-
-    handleScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', handleScroll)
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleScroll)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!showFloatingHeader && mobileMenuOpen) {
-      setMobileMenuOpen(false)
-    }
-  }, [showFloatingHeader, mobileMenuOpen])
 
   if (!service) {
     return (
@@ -276,60 +218,39 @@ function ServicePage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          showFloatingHeader
-            ? 'border-b border-charcoal/12 bg-cream/90 shadow-sm backdrop-blur-md'
-            : 'border-b border-transparent bg-transparent'
-        }`}
-      >
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-3 sm:px-7 sm:py-3.5 lg:px-10 lg:py-4">
-          <Link to="/" className="flex items-center gap-3" aria-label="Premier Doula home">
-            <img src={doulaLogo} alt="Premier Doula" className="h-12 w-auto object-contain sm:h-14" />
-            <span
-              className={`whitespace-nowrap font-heading text-lg tracking-wide transition-colors sm:text-xl ${
-                showFloatingHeader ? 'text-charcoal' : 'text-cream'
-              }`}
-            >
-              Premier Doula
+      <header className="fixed inset-x-0 top-0 z-50 bg-white shadow-sm">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-7 sm:py-3.5 lg:px-10 lg:py-4">
+          <Link to="/" className="flex items-center gap-2.5 sm:gap-3" aria-label="Premier Doulas home">
+            <img src={doulaLogo} alt="Premier Doulas" className="h-12 w-auto object-contain sm:h-14" />
+            <span className="whitespace-nowrap font-heading text-lg tracking-wide text-charcoal transition-colors sm:text-xl">
+              Premier Doulas
             </span>
           </Link>
 
           <button
             type="button"
-            className={`inline-flex items-center justify-center rounded-none border px-3 py-1.5 text-sm font-medium transition sm:hidden ${
-              showFloatingHeader
-                ? 'border-charcoal/15 text-charcoal hover:bg-sand'
-                : 'border-cream/50 text-cream hover:bg-cream/15'
-            }`}
+            className="inline-flex items-center justify-center p-1.5 text-charcoal transition hover:text-charcoal/70 sm:hidden"
             onClick={() => setMobileMenuOpen((open) => !open)}
             aria-expanded={mobileMenuOpen}
             aria-controls="service-mobile-menu"
+            aria-label="Toggle menu"
           >
-            Menu
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+              {mobileMenuOpen ? <path d="m6 6 12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
           </button>
 
-          <nav
-            className={`ml-auto hidden items-center justify-end gap-7 pr-1 text-sm font-medium sm:flex ${
-              showFloatingHeader ? 'text-taupe' : 'text-cream/90'
-            }`}
-          >
-            <Link
-              to="/#services"
-              className={`transition ${showFloatingHeader ? 'hover:text-charcoal' : 'hover:text-cream'}`}
-            >
+          <nav className="ml-auto hidden items-center justify-end gap-8 pr-1 text-sm font-medium text-charcoal/85 sm:flex">
+            <Link to="/#services" className="transition hover:text-charcoal">
               Services
             </Link>
-            <Link
-              to="/#contact"
-              className={`transition ${showFloatingHeader ? 'hover:text-charcoal' : 'hover:text-cream'}`}
-            >
+            <Link to="/#contact" className="transition hover:text-charcoal">
               Contact
             </Link>
             <button
               type="button"
               onClick={openBookingModal}
-              className={`transition ${showFloatingHeader ? 'hover:text-charcoal' : 'hover:text-cream'}`}
+              className="transition hover:text-charcoal"
             >
               Booking
             </button>
@@ -339,28 +260,18 @@ function ServicePage() {
         {mobileMenuOpen && (
           <nav
             id="service-mobile-menu"
-            className={`space-y-2 border-t px-5 py-4 text-sm font-medium sm:hidden ${
-              showFloatingHeader
-                ? 'border-charcoal/10 bg-sand text-charcoal'
-                : 'border-cream/30 bg-charcoal/70 text-cream backdrop-blur-md'
-            }`}
+            className="space-y-1 px-5 pb-4 pt-0 text-sm font-medium text-charcoal sm:hidden"
           >
-            <Link
-              to="/#services"
-              className={`block rounded-lg px-3 py-2 ${showFloatingHeader ? 'hover:bg-cream' : 'hover:bg-cream/15'}`}
-            >
+            <Link to="/#services" className="block rounded-xl px-3 py-3 hover:bg-cream">
               Services
             </Link>
-            <Link
-              to="/#contact"
-              className={`block rounded-lg px-3 py-2 ${showFloatingHeader ? 'hover:bg-cream' : 'hover:bg-cream/15'}`}
-            >
+            <Link to="/#contact" className="block rounded-xl px-3 py-3 hover:bg-cream">
               Contact
             </Link>
             <button
               type="button"
               onClick={openBookingModal}
-              className={`block w-full rounded-lg px-3 py-2 text-left ${showFloatingHeader ? 'hover:bg-cream' : 'hover:bg-cream/15'}`}
+              className="block w-full rounded-xl px-3 py-3 text-left hover:bg-cream"
             >
               Booking
             </button>
@@ -369,34 +280,71 @@ function ServicePage() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden bg-white">
+        <section className="relative overflow-hidden bg-white pt-16 sm:pt-[74px]">
           <img
             src={serviceHeroImage}
             alt={service.name}
-            className="h-[62vh] min-h-[420px] w-full object-cover object-center lg:h-[70vh] lg:min-h-[520px]"
+            className="h-[58svh] min-h-[390px] max-h-[600px] w-full object-cover object-center sm:h-[60svh] sm:min-h-[430px] lg:h-[64vh] lg:max-h-[660px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/62 via-charcoal/42 to-charcoal/12" />
+          <div className="absolute inset-0 bg-gradient-to-r from-charcoal/52 via-charcoal/32 to-charcoal/10" />
           <div className="absolute inset-0 flex items-center">
             <div className="mx-auto w-full max-w-7xl px-5 sm:px-7 lg:px-10">
-              <div className="max-w-lg border border-white/70 bg-cream/96 p-6 shadow-2xl backdrop-blur-[6px] sm:p-8">
+              <div className="max-w-lg border border-white/70 bg-cream/95 p-4 shadow-2xl backdrop-blur-[6px] sm:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-goldDeep">
                   Service details
                 </p>
-                <h1 className="mt-2 text-4xl leading-tight text-charcoal sm:text-5xl">{service.name}</h1>
-                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.14em] text-goldDeep">
-                  Starting at {service.startingAt}
-                </p>
-                <p className="mt-5 text-sm leading-relaxed text-charcoal/85 sm:text-base">
+                <h1 className="mt-2 text-[2rem] leading-tight text-charcoal sm:text-5xl">{service.name}</h1>
+                <p className="mt-4 text-sm leading-relaxed text-charcoal/90 sm:text-base">
                   {service.longDescription}
                 </p>
                 <button
                   type="button"
                   onClick={openBookingModal}
-                  className="mt-7 inline-flex items-center justify-center rounded-none bg-gold px-7 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-charcoal transition hover:bg-goldDeep"
+                  className="mt-7 inline-flex w-full items-center justify-center rounded-none bg-gold px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-charcoal transition hover:bg-goldDeep sm:w-auto"
                 >
-                  Book Consultation
+                  Request Consultation
                 </button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white py-14 sm:py-16 lg:py-20">
+          <div className="mx-auto w-full max-w-7xl px-5 sm:px-7 lg:px-10">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+              <article className="rounded-2xl border border-beige bg-cream p-6 shadow-soft sm:p-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-goldDeep">
+                  How this service works
+                </p>
+                <h2 className="mt-2 text-3xl text-charcoal sm:text-4xl">{service.name} in detail</h2>
+                <ul className="mt-5 space-y-3 text-sm leading-relaxed text-charcoal/75 sm:text-base">
+                  {service.packageHighlights.map((item) => (
+                    <li key={item} className="flex items-start gap-2.5">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-goldDeep" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+
+              <article className="rounded-2xl border border-beige bg-cream p-6 shadow-soft sm:p-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-goldDeep">
+                  What plans can include
+                </p>
+                <h2 className="mt-2 text-3xl text-charcoal sm:text-4xl">Common inclusions</h2>
+                <p className="mt-4 text-sm leading-relaxed text-charcoal/75 sm:text-base">
+                  Every family receives a personalized care plan, but these are common support options we
+                  tailor based on your recovery timeline, home routine, and desired level of help.
+                </p>
+                <ul className="mt-5 space-y-3 text-sm leading-relaxed text-charcoal/75 sm:text-base">
+                  {service.included.map((item) => (
+                    <li key={item} className="flex items-start gap-2.5">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-goldDeep" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
             </div>
           </div>
         </section>
@@ -407,7 +355,7 @@ function ServicePage() {
               <div className="mx-auto mb-3 h-px w-14 bg-gold/70" />
               <h2 className="text-3xl text-charcoal sm:text-4xl">{pageContent.whyTitle}</h2>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
               {pageContent.whyCards.map((item, index) => (
                 <article
                   key={item}
@@ -430,7 +378,7 @@ function ServicePage() {
                 <div className="mx-auto mb-3 h-px w-14 bg-gold/70" />
                 <h2 className="text-3xl text-charcoal sm:text-4xl">{pageContent.definitionTitle}</h2>
               </div>
-              <div className="grid grid-cols-1 gap-6 text-base leading-relaxed text-taupe sm:grid-cols-2 sm:gap-8">
+              <div className="grid grid-cols-1 gap-6 text-base leading-relaxed text-charcoal/75 sm:grid-cols-2 sm:gap-8">
                 <p>{pageContent.definitionLeft}</p>
                 <p>{pageContent.definitionRight}</p>
               </div>
@@ -442,19 +390,19 @@ function ServicePage() {
           <div className="mx-auto w-full max-w-7xl px-5 sm:px-7 lg:px-10">
             <div className="mb-10 text-center">
               <h2 className="text-3xl text-charcoal sm:text-4xl">{pageContent.supportTitle}</h2>
-              <p className="mx-auto mt-3 max-w-3xl text-sm text-taupe sm:text-base">
+              <p className="mx-auto mt-3 max-w-3xl text-sm text-charcoal/75 sm:text-base">
                 Structured support that helps you feel more rested, more confident, and more in
                 control throughout recovery.
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {pageContent.supportColumns.map((column) => (
                 <article
                   key={column.title}
                   className="rounded-2xl border border-beige bg-cream p-5 shadow-soft"
                 >
                   <h3 className="text-2xl text-charcoal">{column.title}</h3>
-                  <ul className="mt-4 space-y-2 text-sm text-taupe sm:text-base">
+                  <ul className="mt-4 space-y-2 text-sm text-charcoal/75 sm:text-base">
                     {column.bullets.map((item) => (
                       <li key={item} className="flex items-start gap-2">
                         <span className="mt-2 h-1.5 w-1.5 rounded-full bg-goldDeep" />
@@ -471,22 +419,22 @@ function ServicePage() {
         <section id="book" className="bg-sand py-14 sm:py-16 lg:py-20">
           <div className="mx-auto w-full max-w-4xl px-5 sm:px-7 lg:px-10">
             <div className="mb-8 text-center">
-              <h2 className="text-3xl text-charcoal sm:text-4xl">Book your consultation</h2>
-              <p className="mt-3 text-sm text-taupe sm:text-base">
-                Open our concierge calendar to select your date, time, and timezone.
+              <h2 className="text-3xl text-charcoal sm:text-4xl">Request a consultation</h2>
+              <p className="mt-3 text-sm text-charcoal/75 sm:text-base">
+                Tell us a little about yourself and we&apos;ll reach out to schedule your private consultation.
               </p>
             </div>
             <div className="rounded-3xl border border-beige bg-white p-7 text-center shadow-soft sm:p-10">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-goldDeep">
-                Interactive scheduler
+                Get started
               </p>
-              <h3 className="mt-2 text-3xl text-charcoal sm:text-4xl">Select a date and time</h3>
+              <h3 className="mt-2 text-3xl text-charcoal sm:text-4xl">We&apos;d love to hear from you</h3>
               <button
                 type="button"
                 onClick={openBookingModal}
-                className="mt-6 inline-flex items-center justify-center rounded-none bg-[#8b6449] px-7 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-cream transition hover:bg-[#74513d]"
+                className="mt-6 inline-flex items-center justify-center rounded-none bg-gold px-7 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition hover:bg-goldDeep"
               >
-                Open Booking Calendar
+                Request Consultation
               </button>
             </div>
           </div>
@@ -498,158 +446,59 @@ function ServicePage() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Consultation booking calendar"
+            aria-label="Consultation request"
             className="relative max-h-[92vh] w-full max-w-6xl overflow-y-auto rounded-2xl border border-beige bg-white shadow-2xl"
           >
             <button
               type="button"
               onClick={closeBookingModal}
-              className="absolute right-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-charcoal/20 bg-white text-charcoal transition hover:bg-sand"
-              aria-label="Close booking modal"
+              className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-charcoal/20 bg-white text-charcoal transition hover:bg-sand"
+              aria-label="Close consultation modal"
             >
               ×
             </button>
 
-            {bookingStep === 'calendar' && (
+            {!bookingSubmitted && (
               <div className="grid grid-cols-1 lg:grid-cols-2">
-                <div className="border-b border-beige bg-cream p-6 sm:p-8 lg:border-b-0 lg:border-r">
-                  <img src={doulaLogo} alt="Premier Doula logo" className="h-16 w-auto object-contain" />
-                  <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-goldDeep">
-                    Premier Doula Reservations
+                <div className="border-b border-beige bg-cream p-6 text-center sm:p-8 lg:border-b-0 lg:border-r">
+                  <img src={doulaLogo} alt="Premier Doulas logo" className="mx-auto h-16 w-auto object-contain" />
+                  <p className="mt-2 font-heading text-2xl leading-none tracking-wide text-gold sm:text-3xl">
+                    Premier
                   </p>
-                  <h3 className="mt-2 font-heading text-4xl leading-tight text-charcoal">
+                  <p className="font-heading text-2xl leading-none tracking-wide text-gold sm:text-3xl">
+                    Doulas
+                  </p>
+                  <h3 className="mt-4 font-heading text-2xl leading-tight text-charcoal sm:text-3xl">
                     {service.name} Consultation
                   </h3>
-                  <p className="mt-4 text-sm leading-relaxed text-taupe sm:text-base">
-                    Book a private consultation and we&apos;ll recommend the best care plan for your
-                    timeline, goals, and support preferences.
+                  <p className="mt-4 text-sm leading-relaxed text-charcoal/75 sm:text-base">
+                    Share a few details and we&apos;ll reach out to schedule a private consultation
+                    tailored to your timeline, goals, and support preferences.
                   </p>
+                  <div className="mt-6 space-y-2 text-sm text-charcoal/80">
+                    <p>• 20 minute consultation</p>
+                    <p>• Phone or virtual call</p>
+                    <p>• Personalized next-step guidance</p>
+                  </div>
                 </div>
 
-                <div className="p-6 sm:p-8">
-                  <h3 className="text-3xl text-charcoal">Select a Date & Time</h3>
-                  <div className="mt-5 flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={showPreviousMonth}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-charcoal/20 text-charcoal transition hover:bg-sand"
-                      aria-label="Previous month"
-                    >
-                      ←
-                    </button>
-                    <p className="font-medium text-charcoal">{monthLabel}</p>
-                    <button
-                      type="button"
-                      onClick={showNextMonth}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-charcoal/20 text-charcoal transition hover:bg-sand"
-                      aria-label="Next month"
-                    >
-                      →
-                    </button>
-                  </div>
-
-                  <div className="mt-4 grid grid-cols-7 gap-2 text-center text-xs font-semibold tracking-[0.08em] text-taupe">
-                    {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((day) => (
-                      <span key={day}>{day}</span>
-                    ))}
-                  </div>
-                  <div className="mt-2 grid grid-cols-7 gap-2">
-                    {calendarDays.map((dayValue, index) =>
-                      dayValue ? (
-                        <button
-                          key={`${dayValue.toISOString()}-${index}`}
-                          type="button"
-                          onClick={() => setSelectedDate(dayValue)}
-                          className={`h-10 rounded-full text-sm font-medium transition ${
-                            isDateSelected(dayValue)
-                              ? 'bg-[#0f4a6f] text-white'
-                              : 'text-charcoal hover:bg-sand'
-                          }`}
-                        >
-                          {dayValue.getDate()}
-                        </button>
-                      ) : (
-                        <span key={`empty-${index}`} />
-                      ),
-                    )}
-                  </div>
-
-                  <div className="mt-6">
-                    <p className="text-sm font-medium text-charcoal">Available times</p>
-                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                      {availableTimes.map((timeValue) => (
-                        <button
-                          key={timeValue}
-                          type="button"
-                          onClick={() => setSelectedTime(timeValue)}
-                          className={`rounded-xl border px-3 py-2 text-sm transition ${
-                            selectedTime === timeValue
-                              ? 'border-[#0f4a6f] bg-[#0f4a6f] text-white'
-                              : 'border-beige text-charcoal hover:bg-sand'
-                          }`}
-                        >
-                          {timeValue}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <label className="text-sm font-medium text-charcoal" htmlFor="service-timezone-select">
-                      Time zone
-                    </label>
-                    <div className="relative mt-2">
-                      <select
-                        id="service-timezone-select"
-                        value={selectedTimezone}
-                        onChange={(event) => setSelectedTimezone(event.target.value)}
-                        className="w-full appearance-none rounded-xl border border-beige bg-cream px-3 py-3 pr-11 text-sm text-charcoal outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
-                      >
-                        {timezones.map((timezone) => (
-                          <option key={timezone} value={timezone}>
-                            {timezone.replace('_', ' ')}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-charcoal/55">
-                        <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
-                          <path d="m5.5 7.5 4.5 4.8 4.5-4.8" />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setBookingStep('details')}
-                    disabled={!canContinueToDetails}
-                    className="mt-6 inline-flex w-full items-center justify-center rounded-none bg-[#8b6449] px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-cream transition hover:bg-[#74513d] disabled:cursor-not-allowed disabled:bg-[#8b6449]/50"
-                  >
-                    Continue
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {bookingStep === 'details' && (
-              <div className="grid grid-cols-1 gap-6 p-6 sm:p-8 lg:grid-cols-2">
-                <div className="rounded-2xl border border-beige bg-cream p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-goldDeep">Selected slot</p>
-                  <h3 className="mt-2 text-2xl text-charcoal">{service.name}</h3>
-                  <p className="mt-3 text-sm text-taupe">{selectedDateLabel}</p>
-                  <p className="mt-1 text-sm text-taupe">{selectedTime}</p>
-                  <p className="mt-1 text-sm text-taupe">{timezoneLabel}</p>
-                  <button
-                    type="button"
-                    onClick={() => setBookingStep('calendar')}
-                    className="mt-5 inline-flex items-center justify-center rounded-none border border-charcoal/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-charcoal transition hover:bg-white"
-                  >
-                    Change time
-                  </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit} className="relative space-y-4 p-6 sm:p-8">
                   <h3 className="text-2xl text-charcoal">Your details</h3>
+                  <div
+                    className="absolute -left-[9999px] top-0 h-px w-px overflow-hidden opacity-0"
+                    aria-hidden="true"
+                  >
+                    <label className="flex flex-col gap-1">
+                      Company website
+                      <input
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={bookingHoneypot}
+                        onChange={(event) => setBookingHoneypot(event.target.value)}
+                      />
+                    </label>
+                  </div>
                   <label className="block space-y-1.5">
                     <span className="text-sm font-medium text-charcoal">Full name</span>
                     <input
@@ -686,43 +535,70 @@ function ServicePage() {
                       className="w-full rounded-xl border border-beige bg-cream px-3 py-3 text-sm text-charcoal outline-none transition focus:border-gold"
                     />
                   </label>
+                  <fieldset className="space-y-2">
+                    <legend className="text-sm font-medium text-charcoal">Preferred contact method</legend>
+                    <div className="mt-1 flex flex-wrap gap-4">
+                      {['Phone', 'Email', 'No preference'].map((method) => (
+                        <label key={method} className="flex items-center gap-2 text-sm text-charcoal/80">
+                          <input
+                            type="radio"
+                            name="preferredContact"
+                            value={method}
+                            checked={bookingForm.preferredContact === method}
+                            onChange={(event) =>
+                              setBookingForm((previous) => ({
+                                ...previous,
+                                preferredContact: event.target.value,
+                              }))
+                            }
+                            className="accent-gold"
+                          />
+                          {method}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
                   <label className="block space-y-1.5">
-                    <span className="text-sm font-medium text-charcoal">Care notes (optional)</span>
+                    <span className="text-sm font-medium text-charcoal">Message (optional)</span>
                     <textarea
                       rows={3}
                       value={bookingForm.notes}
                       onChange={(event) =>
                         setBookingForm((previous) => ({ ...previous, notes: event.target.value }))
                       }
+                      placeholder="Tell us about your due date, care preferences, or any questions you have."
                       className="w-full rounded-xl border border-beige bg-cream px-3 py-3 text-sm text-charcoal outline-none transition focus:border-gold"
                     />
                   </label>
+                  {bookingError && (
+                    <p className="text-sm text-red-700" role="alert">
+                      {bookingError}
+                    </p>
+                  )}
                   <button
                     type="submit"
-                    className="inline-flex w-full items-center justify-center rounded-none bg-[#8b6449] px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-cream transition hover:bg-[#74513d]"
+                    disabled={bookingSubmitting}
+                    className="inline-flex w-full items-center justify-center rounded-none bg-gold px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition hover:bg-goldDeep disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Confirm Consultation
+                    {bookingSubmitting ? 'Sending…' : 'Request Consultation'}
                   </button>
                 </form>
               </div>
             )}
 
-            {bookingStep === 'confirmed' && (
+            {bookingSubmitted && (
               <div className="p-7 text-center sm:p-12">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-goldDeep">Thank you</p>
                 <h3 className="mt-2 text-3xl text-charcoal sm:text-4xl">
-                  Your consultation is requested.
+                  Your consultation request has been received.
                 </h3>
-                <p className="mx-auto mt-3 max-w-2xl text-sm text-taupe sm:text-base">
-                  We&apos;ll be in touch soon to finalize your booking details.
-                </p>
-                <p className="mt-3 text-sm text-taupe">
-                  {service.name} • {selectedDateLabel} • {selectedTime}
+                <p className="mx-auto mt-3 max-w-2xl text-sm text-charcoal/75 sm:text-base">
+                  We&apos;ll be in touch soon to schedule your {service.name} consultation.
                 </p>
                 <button
                   type="button"
                   onClick={closeBookingModal}
-                  className="mt-6 inline-flex items-center justify-center rounded-none bg-[#8b6449] px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-cream transition hover:bg-[#74513d]"
+                  className="mt-6 inline-flex items-center justify-center rounded-none bg-gold px-6 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition hover:bg-goldDeep"
                 >
                   Close
                 </button>

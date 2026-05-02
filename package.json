@@ -4,18 +4,23 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k \"vite\" \"CONTACT_API_DEV=1 node server/dev-api.js\"",
+    "dev:vite": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "nodemailer": "^7.0.13",
     "lucide-react": "^1.7.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.14.0"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
     "@eslint/js": "^9.39.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
