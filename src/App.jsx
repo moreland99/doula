@@ -174,14 +174,14 @@ function App() {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center p-1.5 text-charcoal transition hover:text-charcoal/70 sm:hidden"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-charcoal transition hover:bg-charcoal/5 hover:text-charcoal sm:hidden"
             onClick={() => setMobileMenuOpen((open) => !open)}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
             aria-label="Toggle menu"
           >
             <span className="sr-only">Menu</span>
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round">
               {mobileMenuOpen ? <path d="m6 6 12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
             </svg>
           </button>
@@ -227,52 +227,49 @@ function App() {
 
       <main>
 
-        {/* ── Hero ─────────────────────────────────────────────────── */}
+        {/* ── Hero — full-bleed image + Boram-style light box over photo (all breakpoints) ─ */}
         <section className="relative pt-16 sm:pt-[74px]">
-          {/* Mobile: image first, copy below — avoids the text card covering the bottom of the photo (baby). sm+: full-bleed + overlay card. */}
-          <div className="relative flex flex-col sm:block sm:h-[95svh] sm:min-h-[640px] sm:max-h-[960px] lg:h-[94vh] lg:max-h-[1000px]">
-            <div className="relative h-[58svh] min-h-[380px] max-h-[560px] w-full shrink-0 overflow-hidden sm:absolute sm:inset-0 sm:h-full sm:max-h-none sm:min-h-0">
-              <picture>
+          <div className="relative min-h-[82svh] sm:h-[95svh] sm:min-h-[640px] sm:max-h-[960px] lg:h-[94vh] lg:max-h-[1000px]">
+            <div className="absolute inset-0 overflow-hidden">
+              <picture className="block h-full min-h-[82svh] sm:min-h-0">
                 <source media="(max-width: 639px)" srcSet={mobileHero} />
                 <img
                   src={desktopHero}
                   alt="Premier Doulas caregiver supporting a mother and newborn at home"
-                  className="absolute inset-0 h-full w-full object-cover object-[50%_62%] sm:object-[50%_72%] lg:object-[50%_68%]"
+                  className="h-full w-full min-h-[82svh] object-cover object-[50%_58%] sm:min-h-full sm:object-[50%_72%] lg:object-[50%_68%]"
                 />
               </picture>
-
-              <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-charcoal/28 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 hidden h-64 bg-gradient-to-t from-cream/95 to-transparent sm:block" />
+              <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-charcoal/35 to-transparent sm:h-36" />
+              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-charcoal/30 to-transparent sm:h-48 sm:from-charcoal/20" />
             </div>
 
-            <div className="relative z-10 sm:absolute sm:inset-0 sm:flex sm:items-center">
-              <div className="mx-auto w-full max-w-7xl px-0 sm:px-7 lg:px-10">
-                <div className="w-full sm:max-w-[470px] lg:max-w-[520px]">
-                  <div className="bg-cream px-5 py-6 sm:rounded-sm sm:bg-cream/90 sm:px-8 sm:py-9 sm:shadow-sm sm:backdrop-blur-sm lg:px-10 lg:py-10">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldDeep">
-                      Premium in-home care
-                    </p>
-                    <h1 className="mt-3 font-heading text-[1.75rem] leading-[1.08] tracking-tight text-charcoal sm:text-[2.3rem] lg:text-[2.7rem]">
-                      Compassionate care for mothers and babies.
-                    </h1>
-                    <p className="mt-4 text-sm leading-relaxed text-charcoal/80 sm:max-w-xs sm:text-base">
-                      Postpartum, infant, and lactation support at home.
-                    </p>
-                    <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
-                      <button
-                        type="button"
-                        onClick={() => openBookingForService(selectedService)}
-                        className="inline-flex w-full items-center justify-center rounded-none bg-gold px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition hover:bg-goldDeep sm:w-auto"
-                      >
-                        Request Consultation
-                      </button>
-                      <a
-                        href="#services"
-                        className="text-sm font-medium text-charcoal/75 transition hover:text-charcoal"
-                      >
-                        Our services ↓
-                      </a>
-                    </div>
+            <div className="relative z-10 mx-auto flex min-h-[82svh] w-full max-w-7xl items-center px-4 pb-12 pt-10 sm:absolute sm:inset-0 sm:min-h-0 sm:items-center sm:px-7 sm:pb-0 sm:pt-0 lg:px-10">
+              <div className="w-full sm:max-w-[470px] lg:max-w-[520px]">
+                {/* Solid panel — full opacity for clear type */}
+                <div className="rounded-2xl border border-beige bg-cream/80 px-6 py-7 text-left shadow-soft sm:rounded-2xl sm:px-8 sm:py-9 lg:px-10 lg:py-10">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-goldDeep">
+                    Premium in-home care
+                  </p>
+                  <h1 className="mt-3 font-heading text-[1.75rem] leading-[1.08] tracking-tight text-charcoal sm:text-[2.3rem] lg:text-[2.7rem]">
+                    Compassionate care for mothers and babies.
+                  </h1>
+                  <p className="mt-4 text-sm leading-relaxed text-charcoal/85 sm:max-w-sm sm:text-base">
+                    Postpartum, infant, and lactation support at home.
+                  </p>
+                  <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                    <button
+                      type="button"
+                      onClick={() => openBookingForService(selectedService)}
+                      className="inline-flex w-full items-center justify-center rounded-none bg-gold px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal transition hover:bg-goldDeep sm:w-auto"
+                    >
+                      Request Consultation
+                    </button>
+                    <a
+                      href="#services"
+                      className="text-center text-sm font-medium text-charcoal/75 transition hover:text-charcoal sm:text-left"
+                    >
+                      Our services ↓
+                    </a>
                   </div>
                 </div>
               </div>
